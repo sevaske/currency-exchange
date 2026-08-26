@@ -8,7 +8,7 @@ use League\Flysystem\FilesystemOperator;
 use League\Flysystem\UnableToReadFile;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
-final readonly class CurrencyRatesReader
+final readonly class CurrencyRatesReader implements CurrencyRatesReaderInterface
 {
     public function __construct(
         #[Autowire(service: 'currency.storage')]

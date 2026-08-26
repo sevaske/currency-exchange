@@ -4,8 +4,8 @@ namespace App\Currency\Storage;
 
 class CurrencyRatesPathResolver
 {
-    public function resolve(string $providerName): string
+    public function resolve(string $providerName, string $baseCurrency = 'usd'): string
     {
-        return "rates/$providerName.json";
+        return "rates/$providerName/$baseCurrency.json";
     }
 }
