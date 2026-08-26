@@ -3,7 +3,7 @@
 namespace App\Currency\Provider;
 
 /**
- * USD Based
+ * USD Based.
  */
 interface CurrencyProviderInterface
 {
@@ -12,5 +12,5 @@ interface CurrencyProviderInterface
     /**
      * @return array<string, string>
      */
-    public function fetchRates(): array;
+    public function fetchRates(string $baseCurrency = 'usd'): array;
 }

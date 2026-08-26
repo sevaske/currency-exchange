@@ -9,19 +9,21 @@ use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
-final class FloatRatesProvider extends AbstractCurrencyProvider
+final class CoinPaprikaProvider extends AbstractCurrencyProvider
 {
     public function getName(): string
     {
-        return 'floatrates';
+        return 'coinpaprika';
     }
 
     public function fetchRates(string $baseCurrency = 'usd'): array
     {
-        $url = $this->getApiUrl($baseCurrency);
-
         try {
-            $response = $this->httpClient->request('GET', $url);
+            $response = $this->httpClient->request('GET', $this->apiUrl, [
+                'query' => [
+                    'quotes' => $baseCurrency,
+                ],
+            ]);
             $items = $response->toArray();
         } catch (TransportExceptionInterface|ClientExceptionInterface|DecodingExceptionInterface|RedirectionExceptionInterface|ServerExceptionInterface $e) {
             throw new CurrencyProviderException(providerName: $this->getName(), previous: $e);
@@ -29,20 +31,25 @@ final class FloatRatesProvider extends AbstractCurrencyProvider
 
         $rates = [];
         foreach ($items as $item) {
-            if (!isset($item['code'], $item['rate'])) {
+            $pair = $item['pair'] ?? null;
+            $price = $item['quotes']['USD']['price'] ?? null;
+
+            if (null === $pair || null === $price) {
                 $this->logWarning(data: $item);
 
                 continue;
             }
 
-            $rates[$item['code']] = (string) $item['rate'];
+            [$base, $quote] = explode('/', $pair, 2);
+
+            // keep only $baseCurrency currency
+            if ($quote !== strtoupper($baseCurrency)) {
+                continue;
+            }
+
+            $rates[$base] = (string) $price;
         }
 
         return $rates;
-    }
-
-    private function getApiUrl(string $baseCurrency): string
-    {
-        return $this->apiUrl.'/'.$baseCurrency.'.json';
     }
 }

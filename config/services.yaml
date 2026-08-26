@@ -25,9 +25,13 @@ services:
 
     # currency rates providers
     # use App\Currency\CurrencyManager
+    App\Currency\Provider\CoinPaprikaProvider:
+        arguments:
+            $apiUrl: '%env(COINPAPRIKA_API_URL)%'
+        tags:
+            - {name: app.currency_provider, key: coinpaprika}
     App\Currency\Provider\FloatRatesProvider:
         arguments:
-            $baseUrl: '%env(FLOATRATES_BASE_URL)%'
-            $baseCurrency: '%env(FLOATRATES_BASE_CURRENCY)%'
+            $apiUrl: '%env(FLOATRATES_API_URL)%'
         tags:
             - {name: app.currency_provider, key: floatrates}
