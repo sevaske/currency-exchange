@@ -21,3 +21,13 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+
+    # currency rates providers
+    # use App\Currency\CurrencyManager
+    App\Currency\Provider\FloatRatesProvider:
+        arguments:
+            $baseUrl: '%env(FLOATRATES_BASE_URL)%'
+            $baseCurrency: '%env(FLOATRATES_BASE_CURRENCY)%'
+        tags:
+            - {name: app.currency_provider, key: floatrates}
