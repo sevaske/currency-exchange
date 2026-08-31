@@ -8,8 +8,7 @@ interface CurrencyRatesWriterInterface
      * @param array<string, string> $rates
      */
     public function save(
-        string $providerName,
-        string $baseCurrency,
         array $rates,
+        string $baseCurrency = 'usd',
     ): void;
 }

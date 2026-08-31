@@ -19,10 +19,9 @@ final readonly class CurrencyRatesStorage implements CurrencyRatesWriterInterfac
     /**
      * @param array<string, string> $rates
      */
-    public function save(string $providerName, string $baseCurrency, array $rates): void
+    public function save(array $rates, string $baseCurrency = 'usd'): void
     {
         $payload = [
-            'provider' => $providerName,
             'base_currency' => $baseCurrency,
             'updated_at' => new \DateTimeImmutable()->format(DATE_ATOM),
             'rates' => $rates,
@@ -30,10 +29,10 @@ final readonly class CurrencyRatesStorage implements CurrencyRatesWriterInterfac
 
         try {
             $json = json_encode($payload, JSON_THROW_ON_ERROR | JSON_PRETTY_PRINT);
-            $path = $this->pathResolver->resolve($providerName);
+            $path = $this->pathResolver->resolve($baseCurrency);
             $this->storage->write($path, $json);
         } catch (\JsonException|FilesystemException $e) {
-            throw new CurrencyStorageException(message: "Unable to save rates for provider $providerName.", previous: $e);
+            throw new CurrencyStorageException(message: "Unable to save rates. Path: $path", previous: $e);
         }
     }
 }

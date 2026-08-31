@@ -20,6 +20,9 @@ services:
         resource: '../src/'
 
     # currency rates providers
+    _instanceof:
+        App\Currency\Provider\CurrencyProviderInterface:
+            tags: [ 'app.currency_provider' ]
     # use App\Currency\CurrencyManager
     App\Currency\Provider\CoinPaprikaProvider:
         arguments:
@@ -31,7 +34,3 @@ services:
             $apiUrl: '%env(FLOATRATES_API_URL)%'
         tags:
             - {name: app.currency_provider, key: floatrates}
-    # exchange service
-    App\Currency\Exchange\FileExchangeRateProvider:
-        arguments:
-            $providerName: '%env(DEFAULT_CURRENCY_PROVIDER)%'
