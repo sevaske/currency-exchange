@@ -23,26 +23,19 @@ final class ApiExceptionListener
             return;
         }
 
+        // validation errors
         if ($this->isValidationException($exception)) {
-            $errors = [];
+            $violations = $exception instanceof ValidationFailedException
+                ? $exception->getViolations()
+                : $exception->getPrevious()?->getViolations();
 
-            foreach ($exception->getPrevious()->getViolations() as $violation) {
+            $errors = [];
+            foreach ($violations as $violation) {
                 $errors[$violation->getPropertyPath()] = $violation->getMessage();
             }
 
-            $event->setResponse(new JsonResponse(['errors' => $errors], $exception->getStatusCode()));
-
-            return;
-        }
-
-        if ($exception instanceof ValidationFailedException) {
-            $errors = [];
-
-            foreach ($exception->getViolations() as $violation) {
-                $errors[$violation->getPropertyPath()] = $violation->getMessage();
-            }
-
-            $event->setResponse(new JsonResponse(['errors' => $errors], 422));
+            $statusCode = $exception instanceof ValidationFailedException ? 422 : $exception->getStatusCode();
+            $event->setResponse(new JsonResponse(['errors' => $errors], $statusCode));
 
             return;
         }
@@ -72,10 +65,6 @@ final class ApiExceptionListener
             return false;
         }
 
-        if ($exception->getPrevious() instanceof ValidationFailedException) {
-            return true;
-        }
-
-        return false;
+        return $exception->getPrevious() instanceof ValidationFailedException;
     }
 }
