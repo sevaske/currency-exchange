@@ -10,7 +10,7 @@ use Brick\Math\RoundingMode;
 use Brick\Money\Currency;
 use Brick\Money\ExchangeRateProvider;
 
-final class FileExchangeRateProvider implements ExchangeRateProvider
+class FileExchangeRateProvider implements ExchangeRateProvider
 {
     private const int DIVISION_SCALE = 20;
 

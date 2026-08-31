@@ -15,12 +15,10 @@
 
 ## Console 
 
-- parse currency: `app:currency:parse <provider> [<currency>]` (Available providers: coinpaprika, floatrates. Currency by default: usd)
+- parse currency: `app:currency:sync [<currency>]` (Currency by default: usd)
 - lint: `docker compose exec php composer format`
 
 ## TODO
 
-- store all currencies in one json file
-- api/* responses in json always
-- unittests
 - phpstan
+- rate limiter

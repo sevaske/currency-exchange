@@ -7,7 +7,7 @@ use Brick\Money\Currency;
 use Brick\Money\CurrencyConverter as BrickCurrencyConverter;
 use Brick\Money\Money;
 
-final readonly class CurrencyConverter
+readonly class CurrencyConverter
 {
     private BrickCurrencyConverter $converter;
 

@@ -6,7 +6,7 @@ use App\Currency\Exchange\FileExchangeRateProvider;
 use Brick\Money\Currency;
 use Brick\Money\Exception\UnknownCurrencyException;
 
-final class CurrencyRegistry
+class CurrencyRegistry
 {
     private const int CRYPTO_FRACTION_DIGITS = 8;
 
