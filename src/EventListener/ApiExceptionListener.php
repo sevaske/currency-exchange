@@ -4,14 +4,13 @@ namespace App\EventListener;
 
 use App\Currency\Exception\CurrencyStorageException;
 use Brick\Money\Exception\UnknownCurrencyException;
+use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\EventDispatcher\Attribute\AsEventListener;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
-use Throwable;
 
 #[AsEventListener(event: KernelEvents::EXCEPTION)]
 final class ApiExceptionListener
@@ -63,13 +62,13 @@ final class ApiExceptionListener
         $event->setResponse($response);
     }
 
-    private function isValidationException(Throwable $exception): bool
+    private function isValidationException(\Throwable $exception): bool
     {
         if ($exception instanceof ValidationFailedException) {
             return true;
         }
 
-        if (! $exception instanceof UnprocessableEntityHttpException) {
+        if (!$exception instanceof UnprocessableEntityHttpException) {
             return false;
         }
 

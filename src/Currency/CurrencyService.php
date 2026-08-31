@@ -25,6 +25,7 @@ final readonly class CurrencyService
 
     /**
      * @return CurrencyRate[]
+     *
      * @throws MathException
      */
     public function getRates(string $baseCurrency): array

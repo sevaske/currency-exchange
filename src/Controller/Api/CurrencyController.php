@@ -8,8 +8,8 @@ use App\Currency\Request\CurrencyRatesRequest;
 use Brick\Math\Exception\MathException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\MapQueryString;
 use Symfony\Component\Routing\Attribute\Route;
 
 final class CurrencyController extends AbstractController
@@ -25,9 +25,8 @@ final class CurrencyController extends AbstractController
     #[Route('/api/rates', methods: ['GET'], format: 'json')]
     public function index(
         #[MapQueryString(validationFailedStatusCode: Response::HTTP_UNPROCESSABLE_ENTITY)]
-        CurrencyRatesRequest $request
-    ): JsonResponse
-    {
+        CurrencyRatesRequest $request,
+    ): JsonResponse {
         return $this->json($this->currencyService->getRates($request->base));
     }
 
@@ -38,8 +37,7 @@ final class CurrencyController extends AbstractController
     public function convert(
         #[MapQueryString(validationFailedStatusCode: Response::HTTP_UNPROCESSABLE_ENTITY)]
         ConvertCurrencyRequest $request,
-    ): JsonResponse
-    {
+    ): JsonResponse {
         return $this->json(
             $this->currencyService->convert(
                 amount: $request->amount,

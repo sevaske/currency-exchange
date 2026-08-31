@@ -50,7 +50,7 @@ class CurrencySyncCommand extends Command
             }
         }
 
-        if ($ratesByProvider === []) {
+        if ([] === $ratesByProvider) {
             $io->error('No rates were fetched from any provider.');
 
             return Command::FAILURE;

@@ -32,7 +32,7 @@ final class CoinPaprikaProvider extends AbstractCurrencyProvider
         foreach ($items as $item) {
             $entry = $this->parseMarketEntry($item, $baseCurrency);
 
-            if ($entry === null) {
+            if (null === $entry) {
                 continue;
             }
 
@@ -70,15 +70,17 @@ final class CoinPaprikaProvider extends AbstractCurrencyProvider
     {
         $currencyCode = $this->extractCurrencyCode($item, $baseCurrency);
 
-        if ($currencyCode === null) {
+        if (null === $currencyCode) {
             $this->logWarning(data: $item);
+
             return null;
         }
 
         $price = $this->extractPrice($item);
 
-        if ($price === null) {
+        if (null === $price) {
             $this->logWarning(data: $item);
+
             return null;
         }
 
@@ -89,13 +91,13 @@ final class CoinPaprikaProvider extends AbstractCurrencyProvider
     {
         $pair = $item['pair'] ?? null;
 
-        if ($pair === null) {
+        if (null === $pair) {
             return null;
         }
 
         $parts = explode('/', $pair, 2);
 
-        if (count($parts) !== 2) {
+        if (2 !== count($parts)) {
             return null;
         }
 
@@ -112,7 +114,7 @@ final class CoinPaprikaProvider extends AbstractCurrencyProvider
     {
         $rawPrice = $item['quotes']['USD']['price'] ?? null;
 
-        if ($rawPrice === null) {
+        if (null === $rawPrice) {
             return null;
         }
 
