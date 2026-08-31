@@ -1,0 +1,7 @@
+# config/packages/test/flysystem.yaml
+flysystem:
+    storages:
+        currency.storage:
+            adapter: 'local'
+            options:
+                directory: '%kernel.project_dir%/tests/Fixtures/currency'
