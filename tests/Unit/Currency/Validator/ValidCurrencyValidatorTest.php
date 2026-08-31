@@ -99,6 +99,6 @@ final class ValidCurrencyValidatorTest extends ConstraintValidatorTestCase
 
         $this->expectException(UnexpectedTypeException::class);
 
-        $this->validator->validate('EUR', new class extends \Symfony\Component\Validator\Constraint {});
+        $this->validator->validate('EUR', new class extends Constraint {});
     }
 }
