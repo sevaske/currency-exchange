@@ -3,6 +3,7 @@
 namespace App\Currency\Exchange;
 
 use Brick\Math\RoundingMode;
+use Brick\Money\Currency;
 use Brick\Money\CurrencyConverter as BrickCurrencyConverter;
 use Brick\Money\Money;
 
@@ -17,9 +18,9 @@ final readonly class CurrencyConverter
 
     public function convert(
         Money $money,
-        string $targetCurrencyCode,
+        Currency|string $targetCurrencyCode,
         RoundingMode $roundingMode = RoundingMode::HalfUp,
     ): Money {
-        return $this->converter->convert($money, $targetCurrencyCode, roundingMode: $roundingMode);
+        return $this->converter->convert(money: $money, currency: $targetCurrencyCode, roundingMode: $roundingMode);
     }
 }

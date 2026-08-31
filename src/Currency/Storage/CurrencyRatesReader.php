@@ -17,25 +17,31 @@ final readonly class CurrencyRatesReader implements CurrencyRatesReaderInterface
     ) {
     }
 
-    /**
-     * @return array{provider: string, base_currency: string, updated_at: string, rates: array<string, string>}
-     */
-    public function read(string $providerName): array
+    public function read(string $baseCurrency = 'usd'): CurrencyRatesData
     {
-        $path = $this->pathResolver->resolve($providerName);
-
-        try {
-            $json = $this->storage->read($path);
-        } catch (UnableToReadFile|FilesystemException $e) {
-            throw new CurrencyStorageException(message: 'Unable to read currency rates file. Provider: '.$providerName, previous: $e);
-        }
+        $json = $this->load($baseCurrency);
 
         try {
             $data = json_decode($json, true, flags: JSON_THROW_ON_ERROR);
         } catch (\JsonException $e) {
-            throw new CurrencyStorageException(message: 'Failed to decode json string: '.$e->getMessage().'. Provider: '.$providerName, previous: $e);
+            throw new CurrencyStorageException(message: 'Failed to decode json string: '.$e->getMessage(), previous: $e);
         }
 
-        return $data;
+        try {
+            return CurrencyRatesData::fromArray($data);
+        } catch (\InvalidArgumentException $e) {
+            throw new CurrencyStorageException('Malformed rates file.', previous: $e);
+        }
+    }
+
+    private function load(string $baseCurrency): string
+    {
+        $path = $this->pathResolver->resolve($baseCurrency);
+
+        try {
+            return $this->storage->read($path);
+        } catch (UnableToReadFile|FilesystemException $e) {
+            throw new CurrencyStorageException(message: "Unable to read currency rates file. Path: $path", previous: $e);
+        }
     }
 }

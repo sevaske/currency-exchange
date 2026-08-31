@@ -5,6 +5,7 @@ namespace App\Currency\Exchange;
 use App\Currency\Storage\CurrencyRatesReaderInterface;
 use Brick\Math\BigDecimal;
 use Brick\Math\BigNumber;
+use Brick\Math\Exception\MathException;
 use Brick\Math\RoundingMode;
 use Brick\Money\Currency;
 use Brick\Money\ExchangeRateProvider;
@@ -17,11 +18,13 @@ final class FileExchangeRateProvider implements ExchangeRateProvider
 
     public function __construct(
         private readonly CurrencyRatesReaderInterface $reader,
-        private readonly string $providerName,
-        private readonly string $baseCurrency = 'usd',
+        private readonly string $baseCurrency = 'USD',
     ) {
     }
 
+    /**
+     * @throws MathException
+     */
     public function getExchangeRate(
         Currency $sourceCurrency,
         Currency $targetCurrency,
@@ -29,12 +32,10 @@ final class FileExchangeRateProvider implements ExchangeRateProvider
     ): ?BigNumber {
         $rates = $this->getRates();
 
-        // no source rate
         if (!$this->hasRate($rates, $sourceCurrency->getCurrencyCode())) {
             return null;
         }
 
-        // no target rate
         if (!$this->hasRate($rates, $targetCurrency->getCurrencyCode())) {
             return null;
         }
@@ -52,6 +53,11 @@ final class FileExchangeRateProvider implements ExchangeRateProvider
             self::DIVISION_SCALE,
             RoundingMode::HalfUp,
         );
+    }
+
+    public function hasCurrency(string $currencyCode): bool
+    {
+        return $this->hasRate($this->getRates(), strtoupper($currencyCode));
     }
 
     private function hasRate(array $rates, string $currencyCode): bool
@@ -72,8 +78,8 @@ final class FileExchangeRateProvider implements ExchangeRateProvider
     private function getRates(): array
     {
         if (null === $this->rates) {
-            $data = $this->reader->read($this->providerName);
-            $this->rates = $data['rates'];
+            $data = $this->reader->read($this->baseCurrency);
+            $this->rates = $data->rates;
         }
 
         return $this->rates;

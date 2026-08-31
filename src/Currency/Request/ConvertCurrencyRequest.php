@@ -2,6 +2,7 @@
 
 namespace App\Currency\Request;
 
+use App\Currency\Validator\ValidCurrency;
 use Symfony\Component\Validator\Constraints as Assert;
 
 final class ConvertCurrencyRequest
@@ -12,10 +13,10 @@ final class ConvertCurrencyRequest
     public string $amount;
 
     #[Assert\NotBlank]
-    #[Assert\Length(min: 3, max: 10)]
+    #[ValidCurrency]
     public string $from;
 
     #[Assert\NotBlank]
-    #[Assert\Length(min: 3, max: 10)]
+    #[ValidCurrency]
     public string $to = 'USD';
 }

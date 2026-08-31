@@ -9,7 +9,7 @@ use App\Currency\Exchange\CurrencyRate;
 use App\Currency\Exchange\FileExchangeRateProvider;
 use App\Currency\Storage\CurrencyRatesReaderInterface;
 use Brick\Math\Exception\MathException;
-use Brick\Money\Currency;
+use Brick\Math\RoundingMode;
 use Brick\Money\Money;
 
 final readonly class CurrencyService
@@ -18,23 +18,24 @@ final readonly class CurrencyService
         private CurrencyRatesReaderInterface $reader,
         private FileExchangeRateProvider $exchangeRateProvider,
         private CurrencyConverter $converter,
-        private string $providerName = 'floatrates',
+        private CurrencyRegistry $currencyRegistry,
         private string $storedBaseCurrency = 'USD',
     ) {
     }
 
     /**
      * @return CurrencyRate[]
+     * @throws MathException
      */
     public function getRates(string $baseCurrency): array
     {
         $rates = [];
-        $data = $this->reader->read($this->providerName);
-        $codes = [...array_keys($data['rates']), $this->storedBaseCurrency];
-        $sourceCurrency = Currency::of(strtoupper($baseCurrency));
+        $data = $this->reader->read();
+        $codes = [...array_keys($data->rates), $data->baseCurrency];
+        $sourceCurrency = $this->currencyRegistry->get(strtoupper($baseCurrency));
 
         foreach (array_unique($codes) as $code) {
-            $rate = $this->exchangeRateProvider->getExchangeRate($sourceCurrency, Currency::of($code));
+            $rate = $this->exchangeRateProvider->getExchangeRate($sourceCurrency, $this->currencyRegistry->get($code));
 
             if (null === $rate) {
                 continue;
@@ -46,28 +47,34 @@ final readonly class CurrencyService
         return $rates;
     }
 
+    /**
+     * @throws MathException
+     */
     public function convert(string $amount, string $fromCurrency, string $toCurrency): ?CurrencyConversionResult
     {
-        $from = Currency::of($fromCurrency);
-        $to = Currency::of($toCurrency);
-        $rate = $this->exchangeRateProvider->getExchangeRate($to, $from);
+        $from = $this->currencyRegistry->get($fromCurrency);
+        $to = $this->currencyRegistry->get($toCurrency);
+        $base = $this->currencyRegistry->get($this->storedBaseCurrency);
 
-        if (null === $rate) {
+        $fromRate = $this->exchangeRateProvider->getExchangeRate($base, $from);
+        $toRate = $this->exchangeRateProvider->getExchangeRate($base, $to);
+
+        if (null === $fromRate || null === $toRate) {
             return null;
         }
 
         try {
-            $money = Money::of($amount, $from);
+            $money = Money::of($amount, $from, roundingMode: RoundingMode::HalfUp);
         } catch (MathException $e) {
             throw new CurrencyException(message: 'Cannot convert amount.', previous: $e);
         }
 
-        $converted = $this->converter->convert($money, $to->getCurrencyCode());
+        $converted = $this->converter->convert($money, $to);
 
         return new CurrencyConversionResult(
             amount: $converted->getAmount()->toFloat(),
-            currencyFrom: new CurrencyRate($from->getCurrencyCode(), $rate->toFloat()),
-            currencyTo: new CurrencyRate($to->getCurrencyCode(), 1.0),
+            currencyFrom: new CurrencyRate($from->getCurrencyCode(), $fromRate->toFloat()),
+            currencyTo: new CurrencyRate($to->getCurrencyCode(), $toRate->toFloat()),
         );
     }
 }
