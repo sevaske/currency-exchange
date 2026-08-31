@@ -8,6 +8,10 @@ framework:
     #esi: true
     #fragments: true
 
+    exceptions:
+        Brick\Math\Exception\MathException:
+            log_level: critical
+
 when@test:
     framework:
         test: true
