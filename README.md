@@ -15,7 +15,7 @@
 
 ## Console 
 
-- parse currency: `app:currency:sync [<currency>]` (Currency by default: usd)
+- parse currency: `docker compose exec php bin/console app:currency:sync [<currency>]` (Currency by default: usd)
 - tests: `docker compose exec php composer test`
 - lint: `docker compose exec php composer format`
 
